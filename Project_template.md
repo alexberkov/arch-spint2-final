@@ -6,6 +6,7 @@
 Результат представьте в виде контейнерной диаграммы в нотации С4.
 Добавьте ссылку на файл в этот шаблон
 [диаграмма](diagrams/CinemaAbyss_Container.puml)
+[изображение](screenshots/task_1/CinemaAbyss_Container_Diagram.png)
 
 # Задание 2
 
