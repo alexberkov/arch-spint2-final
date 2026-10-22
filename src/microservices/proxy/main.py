@@ -19,10 +19,10 @@ MOVIES_MIGRATION_PERCENT = int(os.getenv("MOVIES_MIGRATION_PERCENT", 50))
 
 
 def get_forward_url(path: str) -> str:
-    if path.startswith("/api/events"):
+    if path.startswith("api/events"):
         return EVENT_SERVICE_URL
 
-    if path.startswith("/api/movies"):
+    if path.startswith("api/movies"):
         return (MOVIES_SERVICE_URL
                 if random.randint(0, 100) < MOVIES_MIGRATION_PERCENT
                 else MONOLITH_URL)
