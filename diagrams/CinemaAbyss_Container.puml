@@ -1,0 +1,80 @@
+@startuml
+title CinemaAbyss Container Diagram
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Person(user, "User", "Пользователь сервиса 'КиноБездна'")
+System(CinemaAbyssSystem, "CinemaAbyss System", "Стриминговый сервис 'КиноБездна'")
+
+Container_Boundary(CinemaAbyssSystem, "CinemaAbyss System") {
+  Container(WebApp, "Web Application", "JavaScript, React", "Веб-интерфейс для сервиса")
+  Container(MobileApp, "Mobile Application", "Kotlin, Swift", "Мобильное приложение сервиса")
+  Container(TVApp, "TV Application", "JavaScript, Kotlin", "Приложение сервиса для Смарт-ТВ")
+
+  Container(WebBFF, "Web Backend", "Python, FastAPI", "Бэкенд для веб-интерфейса")
+  Container(MobileBFF, "Mobile Backend", "Python, FastAPI", "Бэкенд для мобильного приложения")
+  Container(TVBFF, "TV Backend", "Python, FastAPI", "Бэкенд для Смарт-ТВ")
+
+  Container(Gateway, "API Gateway", "Python, FastAPI", "Маршрутизатор для обработки потока запросов")
+
+  Container(AuthService, "Auth Service", "Go", "Сервис авторизации и аутентификации пользователей")
+  Container(MoviesService, "Movies Service", "Go", "Сервис данных и метаданных о фильмах")
+  Container(EventsService, "Events Service", "Python, FastAPI", "Сервис для обработки событий")
+  Container(SubscriptionsService, "Subscriptions Service", "Go", "Сервис управления оплатой и подписками")
+  Container(UGCService, "UGC Service", "Go", "Сервис данных о действиях пользователей")
+
+  Container(EventsMQ, "Events Message Queue", "Kafka", "Очередь сообщений для обработки событий")
+
+  ContainerDb(MoviesDB, "Movies Database", "PostgreSQL", "База данных о фильмах")
+  ContainerDb(UserDB, "User Database", "PostgreSQL", "База данных пользователей")
+  ContainerDb(SubscriptionsDB, "Subscriptions Database", "PostgreSQL", "База данных подписок")
+  ContainerDb(UGCDB, "UGC Database", "MongoDB", "База данных UGC-контента")
+}
+
+System_Ext(PaymentSystem, "Payment System", "Внешняя платежная система")
+System_Ext(RecommendationSystem, "Recommendation System", "Внешняя рекомендательная система")
+System_Ext(OnlineCinemas, "Online Cinemas", "Онлайн-кинотеатры")
+System_Ext(S3, "S3", "Внешнее хранилище")
+
+Rel(user, WebApp, "Взаимодействует с сервисом")
+Rel(user, MobileApp, "Взаимодействует с сервисом")
+Rel(user, TVApp, "Взаимодействует с сервисом")
+
+Rel(WebApp, WebBFF, "Отправляет запросы пользователей")
+Rel(MobileApp, MobileBFF, "Отправляет запросы пользователей")
+Rel(TVApp, TVBFF, "Отправляет запросы пользователей")
+
+Rel(WebBFF, Gateway, "Передает стандартизированные запросы", "HTTPS, JSON")
+Rel(MobileBFF, Gateway, "Передает стандартизированные запросы", "HTTPS, JSON")
+Rel(TVBFF, Gateway, "Передает стандартизированные запросы", "HTTPS, JSON")
+
+Rel(Gateway, MoviesService, "Передает запросы по мониторингу температуры", "HTTPS, JSON")
+Rel(Gateway, SubscriptionsService, "Передает запросы по управлению подписками", "HTTPS, JSON")
+Rel(Gateway, UGCService, "Передает запросы о действиях пользователей", "HTTPS, JSON")
+Rel(Gateway, AuthService, "Передает запросы авторизации/аутентификации", "HTTPS, JSON")
+
+Rel(MoviesService, MoviesDB, "Чтение информации об фильмах")
+Rel(AuthService, UserDB, "Чтение/запись информации о пользователях")
+Rel(SubscriptionsService, SubscriptionsDB, "Чтение информации о подписках")
+Rel(UGCService, UGCDB, "Чтение информации о действиях пользователей")
+
+Rel(MoviesService, EventsMQ, "Отправка событий о фильмах")
+Rel(SubscriptionsService, EventsMQ, "Отправка событий о подписках")
+Rel(UGCService, EventsMQ, "Отправка событий о действиях пользователей")
+
+Rel(EventsMQ, EventsService, "Обработка событий")
+
+Rel(EventsService, MoviesDB, "Запись информации об фильмах")
+Rel(EventsService, SubscriptionsDB, "Запись информации о подписках")
+Rel(EventsService, UGCDB, "Запись информации о действиях пользователей")
+
+Rel(SubscriptionsService, PaymentSystem, "Отправка запроса об оплате")
+Rel(PaymentSystem, EventsMQ, "Отправка данных об оплате")
+Rel(EventsService, RecommendationSystem, "Получений данных рекомендаций")
+
+Rel(CinemaAbyssSystem, OnlineCinemas, "Просмотр фильмов")
+Rel(CinemaAbyssSystem, S3, "Получение данных из хранилища")
+
+@enduml
